@@ -1,5 +1,3 @@
-import numbers
-
 import telebot
 import sqlite3
 import markups_for_bot
@@ -143,58 +141,10 @@ def spec_user(message):
         bot.register_next_step_handler(message, spec_user_add)
 
 
+
 # Должности компании (цикл, предлагает добавить в отдел)- > Распределение должностей в отдел
 def spec_user_add(message):
     pass
-
-
-# Добавить пользователей (цикл, предлагает добавить должность) - > Панель администратора
-
-
-# def reg_otdel(message):
-#     yn = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-#     key1 = types.KeyboardButton(text='Добавить сотрудника')
-#     key2 = types.KeyboardButton(text='Нет, позже добавлю')
-#     yn.add(key1,key2)
-#     if message.text == '🔙 Назад':
-#         bot.send_message(message.chat.id,'Вы на стартовом меню.',reply_markup=markups_for_bot.choose_menu)
-#         pass
-#     else:
-#         bot.send_message(message.chat.id,'Отделы добавили.
-#         Можем добавить сотрудников сейчас в рамках всей организации или'
-#                                      'позже в рамках отделов.\n'
-#                                      'Добавим сотрудников?',reply_markup=yn)
-#         bot.register_next_step_handler(message,sort)
-#
-#
-# #Модератор?
-# def sort(message):
-#     if message.text == 'Добавить сотрудника':
-#         bot.send_message(message.chat.id,'Для добавления сотрудника прикрепите контакт или напишите его вручную')
-#         # отправляем контакт и добавляем в организацию пользователя
-#         bot.register_next_step_handler(message, add_user2)
-#     elif message.text == 'Нет, позже добавлю':
-#         print(message.text)
-#
-# def sotrudnik_add(message):
-#     pass
-#
-# def add_user2(message):
-#     #При
-#     if message.content_type == 'contact':
-#         bot.send_message(message.chat.id,'Сотрудник добавлен! \n'
-#                                         'Выберите отдел сотрудника')
-#         bot.register_next_step_handler(message,add_spec_user)
-#     elif message.text.isdigit() or len(message.text) == 12:
-#         bot.send_message(message.chat.id, 'Номер {} добавлен! \n'
-#                                           'Выберите отдел сотрудника '.format(message.text))
-#     elif message.text == 'Нет, позже добавлю':
-#         bot.send_message(message.chat.id,'ок дальше (?)')
-#     else:
-#         bot.send_message(message.chat.id,'Неправильно набран номер.. Попробуйте еще раз')
-#     bot.register_next_step_handler(message,add_user2)
-#
-
 
 print("----------ChatBot works now------------")
 try:
