@@ -30,10 +30,10 @@ main_menu_user.add(key_b1,key_b2,key_b3)
 
 ### Главное меню администратора
 main_menu_admin = telebot.types.ReplyKeyboardMarkup(True, True)
-admin_key_b8 = types.KeyboardButton(text='Отделы')
-admin_key_b9 = types.KeyboardButton(text='')
-admin_key_b10 = types.KeyboardButton(text='Добавить cотрудников ➕')
-admin_key_b11 = types.KeyboardButton(text='')
+admin_key_b8 = types.KeyboardButton(text='Ящик предложений')
+admin_key_b9 = types.KeyboardButton(text='Отделы')
+admin_key_b10 = types.KeyboardButton(text='Должности')
+admin_key_b11 = types.KeyboardButton(text='Сотрудники')
 main_menu_admin.add(admin_key_b8,admin_key_b9)
 main_menu_admin.add(admin_key_b10,admin_key_b11)
 
@@ -43,3 +43,4 @@ back = types.KeyboardButton(text='🔙 Назад')
 back_menu.add(back)
 
 
+# Имя - Цель - Отдел - Должность - Сотрудник

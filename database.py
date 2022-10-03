@@ -27,9 +27,10 @@ def create_db():
     cursor.execute("""CREATE TABLE company
                       (name text,
                        admin_id interer,
-                       worker_id integer,
+                       worker text,
                        goal text,
-                       otdel text)
+                       otdel text,
+                       dolzhnosti text)
                    """)
     connection.commit()
 
