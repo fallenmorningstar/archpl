@@ -32,7 +32,8 @@ def start(message):
                                           '\nДля получения краткой информации '
                                           'напишите /help, '
                                           'подробная информация находится непосредственно в '
-                                          'кнопках раздела',
+                                          'кнопках раздела'
+                                          '\n\nЧат-бот в разработке.',
                          reply_markup=markups_for_bot.choose_menu)
         bot.register_next_step_handler(message, choose_way)
 
