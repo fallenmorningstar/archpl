@@ -87,8 +87,6 @@ def choose_way(message):
 
 # Регистрация компании (запись) - > Цель компании
 def reg_company(message):
-
-
     company_name = message.text
     if message.text == '🔙 Назад':
         bot.send_message(message.chat.id, 'Вы на стартовом меню.', reply_markup=markups_for_bot.choose_menu)
@@ -108,8 +106,8 @@ def reg_goal1(message, company_name):
     if message.text != '🔙 Назад':
         yn = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
         key1 = types.KeyboardButton(text='Да, продолжим')
-        key2 = types.KeyboardButton(text='Нет, изменить цель')
-        yn.add(key1, key2)
+        key2 = types.KeyboardButton(text='🔙 Назад')
+        yn.add(key2,key1 )
         goal = message.text
         bot.send_message(message.chat.id, 'Ваша компания: {}\nВаша цель: {}\n\n Запоминаем?'
                                           ''.format(company_name, goal), reply_markup=yn)
@@ -132,7 +130,8 @@ def reg_goal2(message, company_name, goal):
                                           'Например: Бухгалтерия'
                          , reply_markup=markups_for_bot.back_menu)
         bot.register_next_step_handler(message, otdel_add)
-    elif message.text == 'Нет, изменить цель':
+    elif message.text == '🔙 Назад':
+        bot.send_message(message.chat.id, 'Введите название компании',reply_markup=markups_for_bot.back_menu)
         bot.register_next_step_handler(message, reg_company)
     else:
         bot.send_message(message.chat.id, 'Пожалуйста, выберите предложенный Вам вариант')
@@ -175,15 +174,16 @@ def otd_keyboard(message):
     result = sql1_ex.fetchone()
     otd_list = telebot.types.ReplyKeyboardMarkup()
     admin_k = types.KeyboardButton(text='Зарегистрироваться')
+    key1231 = types.KeyboardButton(text='🔙 Создать отдел')
 
     for i in str(result[4]).split(';'):
         if i != '':
             otd_list.add(i)
-    otd_list.add(markups_for_bot.back)
+    otd_list.add(key1231)
     otd_list.add(admin_k)
-    bot.send_message(message.chat.id, 'Перекресток анкетирования:'
-                                      '1) Можно продолжить прописывать отделы, добавлять должности и пользователей'
-                                      '2) Можно зарегистрироваться и заполниться остальное позже', reply_markup=otd_list)
+    bot.send_message(message.chat.id, 'Перекресток анкетирования:\n'
+                                      '\n1) Можно продолжить прописывать отделы, добавлять должности и пользователей'
+                                      '\n2) Можно зарегистрироваться и заполниться остальное позже', reply_markup=otd_list)
     bot.register_next_step_handler(message, dolzhnosti_choose)
 
 
@@ -193,23 +193,35 @@ def otd_keyboard(message):
 def dolzhnosti_choose(message):
     if message.text == 'Зарегистрироваться':
         bot.send_message(message.chat.id, 'Вы завершили регистрацию, данные можно менять в панели администратора.'
+                                          '\nВ ней можно редактировать компанию\n\nРезультат создания компании:')
+        c = sqlite3.connect("content.db")
+        cursor = c.cursor()
+        sql1 = "SELECT * FROM company WHERE admin_id={}".format(message.from_user.id)
+        sql1_ex = cursor.execute(sql1)
+        result = sql1_ex.fetchone()
+        bot.send_message(message.chat.id,'Название:\n {}\n\n'
+                                         'Цели:\n {}\n\n'
+                                         'Отделы:\n {}\n\n'
+                                         'Должности:\n {}\n\n'
+                                         'Сотрудники:\n {}\n\n'.format(result[0],result[3],result[4],result[5],result[2])
                          , reply_markup=markups_for_bot.main_menu_admin)
-    elif message.text == '🔙 Назад':
-        bot.send_message(message.chat.id, 'Вы на стартовом меню.', reply_markup=markups_for_bot.choose_menu)
+    elif message.text == '🔙 Создать отдел':
+        bot.send_message(message.chat.id, 'Создание отдела', reply_markup=markups_for_bot.back_menu)
+        bot.register_next_step_handler(message,otdel_add)
     else:
         otdel = message.text
         bot.send_message(message.chat.id, 'Отдел {}. \n Добавьте должность'
-                                          '', reply_markup=markups_for_bot.back_menu)
+                                          ''.format(message.text), reply_markup=markups_for_bot.back_menu)
         bot.register_next_step_handler(message, dolzhnosti_add, otdel)
 
 
 def dolzhnosti_add(message, otdel):
     yn = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-    key1 = types.KeyboardButton(text='🔙 Назад')
+    key1 = types.KeyboardButton(text='🔙 Отделы')
     key2 = types.KeyboardButton(text='Добавить сотрудников')
     yn.add(key1, key2)
 
-    if message.text != '🔙 Назад' and message.text != 'Добавить сотрудников':
+    if message.text != '🔙 Отделы' and message.text != 'Добавить сотрудников':
         c = sqlite3.connect("content.db")
         cursor = c.cursor()
         sql1 = "SELECT * FROM company WHERE admin_id={}".format(message.from_user.id)
@@ -227,15 +239,37 @@ def dolzhnosti_add(message, otdel):
                                           ''.format(message.text, otdel), reply_markup=yn)
         bot.register_next_step_handler(message, dolzhnosti_add, otdel)
     elif message.text == 'Добавить сотрудников':
+        yn1 = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+        key11 = types.KeyboardButton(text='🔙 Отделы')
+        yn1.add(key11)
         bot.send_message(message.chat.id, 'Прикрепите контакт пользователя'
                                           '', reply_markup=markups_for_bot.back_menu)
-        bot.register_next_step_handler(message, sotr_num)
-    elif message.text == '🔙 Назад':
+        bot.register_next_step_handler(message, sotr_num,otdel)
+    elif message.text == '🔙 Отделы':
         otd_keyboard(message)
 
 
-def sotr_num(message):
+def sotr_num(message,otdel):
     if message.content_type == 'contact':
+        c = sqlite3.connect("content.db")
+        cursor = c.cursor()
+
+        sql1 = "SELECT * FROM company WHERE admin_id={}".format(message.from_user.id)
+        sql1_ex = cursor.execute(sql1)
+        result = sql1_ex.fetchone()
+        otd_list = telebot.types.ReplyKeyboardMarkup()
+
+        for i in str(result[5]).split(';'):
+            if i != '' and otdel in i:
+                print(i.split(';'))
+                print(i[1])
+                otd_list.add(i)
+        otd_list.add(markups_for_bot.back)
+        bot.send_message(message.chat.id, 'Теперь, пожалуйста выберите должность сотрудника из списка.'
+                                          '', reply_markup=otd_list)
+        num = message.contact.phone_number
+        bot.register_next_step_handler(message, sotr_add, num,otdel)
+    elif message.text.isdigit() == True:
         c = sqlite3.connect("content.db")
         cursor = c.cursor()
 
@@ -250,9 +284,10 @@ def sotr_num(message):
         otd_list.add(markups_for_bot.back)
         bot.send_message(message.chat.id, 'Теперь, пожалуйста выберите должность сотрудника из списка.'
                                           '', reply_markup=otd_list)
-        num = message.contact.phone_number
-        bot.register_next_step_handler(message, sotr_add, num)
-    elif message.text == '🔙 Назад':
+        num = message.text
+        bot.register_next_step_handler(message, sotr_add, num, otdel)
+
+    elif message.text == '🔙 Отделы':
         otd_keyboard(message)
     else:
         bot.send_message(message.chat.id, 'Пожалуйста, прикрепите контакт'
@@ -260,7 +295,7 @@ def sotr_num(message):
         bot.register_next_step_handler(message, sotr_num)
 
 
-def sotr_add(message, num):
+def sotr_add(message, num,otdel):
     if message.text != '🔙 Назад':
         c = sqlite3.connect("content.db")
         cursor = c.cursor()
@@ -269,17 +304,19 @@ def sotr_add(message, num):
         result = sql1_ex.fetchone()
 
         old_sotr = result[5]
-        new_sotr = old_sotr + ';' + message.text + ':' + num + ';'
+        new_sotr = old_sotr + ';' + otdel+':'+ message.text + ':' + num + ';'
         sql2 = """ UPDATE company SET worker = '{}' WHERE admin_id LIKE '{}'""" \
             .format(new_sotr, message.from_user.id)
         cursor.execute(sql2)
         c.commit()
-
-        bot.send_message(message.chat.id, '{} - Добавлен в отдел {}\n'
-                                          'Прикрепите контакт пользователя или напишите его номер'
-                                          ''.format(num, message.text), reply_markup=markups_for_bot.back_menu)
-        bot.register_next_step_handler(message, sotr_num)
-    elif message.text == '🔙 Назад':
+        yn1 = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+        key11 = types.KeyboardButton(text='🔙 Отделы')
+        yn1.add(key11)
+        bot.send_message(message.chat.id, '{} - Добавлен в отдел {}\n\n'
+                                          'Прикрепите контакт нового пользователя или напишите его номер'
+                                          ''.format(num, message.text), reply_markup=yn1)
+        bot.register_next_step_handler(message, sotr_num,otdel)
+    elif message.text == '🔙 Отделы':
         otd_keyboard(message)
 
 
